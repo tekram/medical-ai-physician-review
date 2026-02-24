@@ -171,11 +171,15 @@
             initCases();
         }
 
-        // Auto-resume if reviewer info exists
-        if (reviewer && Object.keys(reviews).length > 0) {
+        // Auto-resume if reviewer info exists (even with 0 cases saved)
+        if (reviewer) {
             document.getElementById('info-section').classList.add('hidden');
             document.getElementById('review-section').classList.remove('hidden');
-            window.addEventListener('DOMContentLoaded', initCases);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCases);
+            } else {
+                initCases();
+            }
         }
 
         function initCases() {
@@ -433,14 +437,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // Initialize on load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                if (reviewer && Object.keys(reviews).length > 0) initCases();
-            });
-        } else {
-            if (reviewer && Object.keys(reviews).length > 0) initCases();
-        }
+        // (auto-resume is handled above, near startReview)
     </script>
 </body>
 </html>
