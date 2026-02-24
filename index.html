@@ -309,6 +309,7 @@
                 reviews[caseId].agrees = agrees;
                 document.getElementById('harm-' + caseId).style.display = agrees ? 'none' : 'block';
                 if (agrees) reviews[caseId].harm_level = level;
+                autoSave();
             }
 
             if (btn.classList.contains('harm-btn')) {
@@ -318,6 +319,7 @@
                 btn.classList.add('selected');
                 if (!reviews[caseId]) reviews[caseId] = {};
                 reviews[caseId].harm_level = harmLevel;
+                autoSave();
             }
 
             if (btn.classList.contains('submit-btn')) {
@@ -354,6 +356,27 @@
             }, 1200);
         }
 
+        function autoSave() {
+            localStorage.setItem('physician_reviews', JSON.stringify(reviews));
+        }
+
+        // Grab any notes typed but not explicitly saved
+        function collectAllNotes() {
+            CASES.forEach(function(c) {
+                var textarea = document.getElementById('notes-' + c.attack_id);
+                if (!textarea) return;
+                var notes = textarea.value.trim();
+                if (notes && reviews[c.attack_id]) {
+                    reviews[c.attack_id].notes = notes;
+                    if (!reviews[c.attack_id].timestamp) {
+                        reviews[c.attack_id].timestamp = new Date().toISOString();
+                    }
+                }
+            });
+            autoSave();
+            updateStats();
+        }
+
         function buildSubmissionData() {
             return {
                 _subject: 'Physician Review Submission - Medical AI Safety',
@@ -382,6 +405,7 @@
         }
 
         async function submitAll() {
+            collectAllNotes();
             var reviewCount = Object.keys(reviews).length;
             if (reviewCount === 0) {
                 alert('No cases reviewed yet. Please review at least one case.');
