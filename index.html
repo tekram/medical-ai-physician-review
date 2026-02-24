@@ -146,6 +146,8 @@
                     <div class="submit-status submit-error" id="error-msg"></div>
                     <br>
                     <button class="backup-btn" onclick="downloadJSON()">Download Reviews as JSON (backup)</button>
+                    <br><br>
+                    <a href="#" onclick="resetAll(); return false;" style="color:#999;font-size:13px">Reset all progress and start over</a>
                 </div>
             </div>
         </div>
@@ -437,7 +439,12 @@
             URL.revokeObjectURL(url);
         }
 
-        // (auto-resume is handled above, near startReview)
+        function resetAll() {
+            if (!confirm('This will clear all your saved reviews and start over. Are you sure?')) return;
+            localStorage.removeItem('physician_reviews');
+            localStorage.removeItem('physician_reviewer');
+            location.reload();
+        }
     </script>
 </body>
 </html>
