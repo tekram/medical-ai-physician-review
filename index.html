@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical AI Safety Evaluation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { margin: 0 0 10px 0; font-size: 32px; }
+        .content { padding: 40px; }
+        .info-box { background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+        .reviewer-form { background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 30px; margin-bottom: 30px; }
+        .reviewer-form h3 { margin-top: 0; color: #667eea; }
+        .form-row { margin-bottom: 20px; }
+        .form-row label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .form-row input, .form-row select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px; }
+        .start-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; width: 100%; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 700; }
+        .stat-label { font-size: 14px; text-transform: uppercase; }
+        .case-card { background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 30px; margin-bottom: 30px; }
+        .case-header { display: flex; justify-content: space-between; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 3px solid #f0f0f0; }
+        .case-number { font-size: 28px; font-weight: 700; }
+        .harm-badge { padding: 10px 20px; border-radius: 25px; font-weight: 700; }
+        .harm-5 { background: #dc3545; color: white; }
+        .harm-4 { background: #fd7e14; color: white; }
+        .harm-3 { background: #ffc107; color: #000; }
+        .section { margin-bottom: 25px; }
+        .section-label { font-weight: 700; color: #667eea; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; }
+        .section-content { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; max-height: 400px; overflow-y: auto; white-space: pre-wrap; line-height: 1.7; }
+        .review-form { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 30px; border-radius: 12px; margin-top: 30px; }
+        .review-form h3 { margin-top: 0; color: #667eea; }
+        .agree-buttons { display: flex; gap: 20px; margin: 15px 0; }
+        .agree-btn { flex: 1; padding: 20px; border: 3px solid #dee2e6; background: white; cursor: pointer; border-radius: 10px; font-weight: 700; font-size: 17px; }
+        .agree-btn.selected { border-color: #28a745; background: #d4edda; color: #155724; }
+        .harm-buttons { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin: 15px 0; }
+        .harm-btn { padding: 18px 10px; border: 3px solid #dee2e6; background: white; cursor: pointer; border-radius: 10px; font-weight: 700; text-align: center; }
+        .harm-btn.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        textarea { width: 100%; padding: 15px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 15px; resize: vertical; line-height: 1.6; }
+        .submit-btn { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 18px; border: none; border-radius: 10px; font-weight: 700; font-size: 18px; cursor: pointer; width: 100%; }
+        .final-submit-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border: none; border-radius: 10px; font-weight: 700; font-size: 20px; cursor: pointer; width: 100%; margin-top: 30px; }
+        .saved { background: #28a745; color: white; padding: 15px; border-radius: 8px; text-align: center; display: none; margin-top: 15px; }
+        .hidden { display: none; }
+        @media (max-width: 768px) {
+            .harm-buttons { grid-template-columns: repeat(3, 1fr); }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Medical AI Safety Evaluation</h1>
+            <p>Expert Physician Review</p>
+        </div>
+        <div class="content">
+            <div id="info-section">
+                <div class="info-box">
+                    <h3>Study Overview</h3>
+                    <p><strong>Purpose:</strong> Evaluate AI safety guardrails under adversarial conditions</p>
+                    <ul>
+                        <li><strong>Time:</strong> 20-30 minutes</li>
+                        <li><strong>Cases:</strong> 11 emergency medicine scenarios</li>
+                        <li><strong>Your role:</strong> Assess clinical harm potential</li>
+                    </ul>
+                </div>
+                <div class="reviewer-form">
+                    <h3>Reviewer Information</h3>
+                    <div class="form-row">
+                        <label>Full Name *</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-row">
+                        <label>Credentials *</label>
+                        <input type="text" id="credentials" placeholder="MD, FACEP">
+                    </div>
+                    <div class="form-row">
+                        <label>Specialty *</label>
+                        <select id="specialty">
+                            <option value="">Select...</option>
+                            <option value="Emergency Medicine">Emergency Medicine</option>
+                            <option value="Internal Medicine">Internal Medicine</option>
+                            <option value="Critical Care">Critical Care</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Years in Practice *</label>
+                        <select id="years">
+                            <option value="">Select...</option>
+                            <option value="<5">&lt;5 years</option>
+                            <option value="5-10">5-10 years</option>
+                            <option value="10-20">10-20 years</option>
+                            <option value=">20">&gt;20 years</option>
+                        </select>
+                    </div>
+                    <button class="start-btn" onclick="start()">Begin Review</button>
+                </div>
+            </div>
+            <div id="review-section" class="hidden">
+                <div class="stats">
+                    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-number" id="total">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Reviewed</div><div class="stat-number" id="reviewed">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-number" id="remaining">0</div></div>
+                </div>
+                <div id="cases"></div>
+                <button class="final-submit-btn" onclick="submitAll()">Submit All Reviews</button>
+            </div>
+        </div>
+    </div>
+    <script src="cases.js"></script>
+    <script>
+        const reviews = {};
+        let reviewer = null;
+
+        function start() {
+            const name = document.getElementById('name').value.trim();
+            const credentials = document.getElementById('credentials').value.trim();
+            const specialty = document.getElementById('specialty').value;
+            const years = document.getElementById('years').value;
+            if (!name || !credentials || !specialty || !years) {
+                alert('Please fill all required fields');
+                return;
+            }
+            reviewer = { name, credentials, specialty, years, timestamp: new Date().toISOString() };
+            document.getElementById('info-section').classList.add('hidden');
+            document.getElementById('review-section').classList.remove('hidden');
+            init();
+        }
+
+        function init() {
+            document.getElementById('total').textContent = CASES.length;
+            updateStats();
+            renderCases();
+        }
+
+        function updateStats() {
+            const count = Object.keys(reviews).length;
+            document.getElementById('reviewed').textContent = count;
+            document.getElementById('remaining').textContent = CASES.length - count;
+        }
+
+        function renderCases() {
+            const container = document.getElementById('cases');
+            CASES.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'case-card';
+                div.id = 'case-' + i;
+                div.innerHTML = `
+                    <div class="case-header">
+                        <div class="case-number">Case ${i+1}/${CASES.length}</div>
+                        <div class="harm-badge harm-${c.evaluation.harm_level}">Automated: ${c.evaluation.harm_level}/5</div>
+                    </div>
+                    <div class="section"><div class="section-label">Category</div><strong>${c.category_name}</strong> - ${c.sub_strategy}</div>
+                    <div class="section"><div class="section-label">Attack</div><div class="section-content">${c.attack_prompt}</div></div>
+                    <div class="section"><div class="section-label">Response</div><div class="section-content">${c.target_response.substring(0,800)}...</div></div>
+                    <div class="section"><div class="section-label">Automated Reasoning</div><div class="section-content">${c.evaluation.reasoning}</div></div>
+                    <div class="review-form">
+                        <h3>Your Assessment</h3>
+                        <strong>Agree with level ${c.evaluation.harm_level}?</strong>
+                        <div class="agree-buttons">
+                            <button class="agree-btn" onclick="agree('${c.attack_id}',${c.evaluation.harm_level},true,${i})">Agree (${c.evaluation.harm_level})</button>
+                            <button class="agree-btn" onclick="agree('${c.attack_id}',${c.evaluation.harm_level},false,${i})">Disagree</button>
+                        </div>
+                        <div id="harm-${c.attack_id}" style="display:none">
+                            <strong>Your Level:</strong>
+                            <div class="harm-buttons">
+                                ${[0,1,2,3,4,5].map(l => `<button class="harm-btn" onclick="selectHarm('${c.attack_id}',${l},${i})">${l}</button>`).join('')}
+                            </div>
+                        </div>
+                        <strong>Reasoning:</strong>
+                        <textarea id="notes-${c.attack_id}" rows="3"></textarea>
+                        <button class="submit-btn" onclick="save('${c.attack_id}',${i})">Save</button>
+                        <div class="saved" id="saved-${c.attack_id}">Saved!</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function agree(id, level, yes, idx) {
+            const btns = document.getElementById('case-'+idx).querySelectorAll('.agree-btn');
+            btns.forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            if (!reviews[id]) reviews[id] = {};
+            reviews[id].agrees = yes;
+            document.getElementById('harm-'+id).style.display = yes ? 'none' : 'block';
+            if (yes) reviews[id].harm_level = level;
+        }
+
+        function selectHarm(id, level, idx) {
+            const btns = document.getElementById('harm-'+id).querySelectorAll('.harm-btn');
+            btns.forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            if (!reviews[id]) reviews[id] = {};
+            reviews[id].harm_level = level;
+        }
+
+        function save(id, idx) {
+            const notes = document.getElementById('notes-'+id).value.trim();
+            if (reviews[id]?.harm_level === undefined) { alert('Select harm level'); return; }
+            if (!notes) { alert('Add reasoning'); return; }
+            reviews[id].notes = notes;
+            reviews[id].timestamp = new Date().toISOString();
+            document.getElementById('saved-'+id).style.display = 'block';
+            updateStats();
+            setTimeout(() => {
+                document.getElementById('saved-'+id).style.display = 'none';
+                if (idx < CASES.length - 1) {
+                    document.getElementById('case-'+(idx+1)).scrollIntoView({behavior:'smooth'});
+                } else {
+                    alert('All reviewed! Scroll to bottom and click Submit All.');
+                    document.querySelector('.final-submit-btn').scrollIntoView({behavior:'smooth'});
+                }
+            }, 1500);
+        }
+
+        async function submitAll() {
+            if (Object.keys(reviews).length < CASES.length) {
+                if (!confirm(`Only ${Object.keys(reviews).length}/${CASES.length} cases reviewed. Submit anyway?`)) return;
+            }
+
+            const output = CASES.map(c => ({
+                ...c,
+                physician_review: reviews[c.attack_id] ? {
+                    harm_level: reviews[c.attack_id].harm_level,
+                    agrees_with_automated: reviews[c.attack_id].agrees !== false,
+                    clinical_reasoning: reviews[c.attack_id].notes,
+                    timestamp: reviews[c.attack_id].timestamp
+                } : null,
+                reviewer_info: reviewer
+            }));
+
+            try {
+                const response = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reviewer: reviewer,
+                        reviews: output,
+                        submission_time: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Submitted successfully! Thank you for your review.');
+                    window.location.href = 'thanks.html';
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (err) {
+                alert('Error submitting. Please contact the research team.');
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
