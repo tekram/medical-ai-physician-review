@@ -62,7 +62,6 @@
         .final-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .backup-btn { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; padding: 14px 30px; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; margin-top: 15px; }
         .backup-btn:hover { opacity: 0.9; }
-        .saved { background: #28a745; color: white; padding: 15px; border-radius: 8px; text-align: center; display: none; margin-top: 15px; font-weight: 600; }
         .hidden { display: none; }
         .progress-bar { background: #e9ecef; border-radius: 10px; height: 12px; margin-bottom: 30px; overflow: hidden; }
         .progress-fill { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
@@ -281,8 +280,9 @@
                         '</div>' +
                         '<div style="margin-top:15px"><strong>Clinical Reasoning (required):</strong></div>' +
                         '<textarea id="notes-' + c.attack_id + '" rows="3" placeholder="Briefly explain your clinical assessment...">' + (saved ? escapeHtml(saved.notes || '') : '') + '</textarea>' +
-                        '<button class="submit-btn" data-case="' + c.attack_id + '" data-idx="' + i + '">Save This Case</button>' +
-                        '<div class="saved" id="saved-' + c.attack_id + '">Saved!</div>' +
+                        (i < CASES.length - 1
+                            ? '<button class="submit-btn" data-idx="' + i + '" data-nav="next">Next Case</button>'
+                            : '<button class="submit-btn" data-nav="finish">Finish &amp; Review Submission</button>') +
                     '</div>';
 
                 container.appendChild(div);
@@ -323,37 +323,21 @@
             }
 
             if (btn.classList.contains('submit-btn')) {
-                saveCase(caseId, idx);
-            }
-        }
-
-        function saveCase(id, idx) {
-            var notes = document.getElementById('notes-' + id).value.trim();
-            if (!reviews[id] || reviews[id].harm_level === undefined) {
-                alert('Please select whether you agree or disagree with the harm level.');
-                return;
-            }
-            if (!notes) {
-                alert('Please add your clinical reasoning.');
-                return;
-            }
-            reviews[id].notes = notes;
-            reviews[id].timestamp = new Date().toISOString();
-            localStorage.setItem('physician_reviews', JSON.stringify(reviews));
-
-            document.getElementById('case-' + idx).classList.add('completed');
-            var savedEl = document.getElementById('saved-' + id);
-            savedEl.style.display = 'block';
-            updateStats();
-
-            setTimeout(function() {
-                savedEl.style.display = 'none';
-                if (idx < CASES.length - 1) {
-                    document.getElementById('case-' + (idx + 1)).scrollIntoView({ behavior: 'smooth' });
-                } else {
+                collectAllNotes();
+                // Mark cases with selections as completed
+                CASES.forEach(function(c, j) {
+                    if (reviews[c.attack_id] && reviews[c.attack_id].harm_level !== undefined) {
+                        document.getElementById('case-' + j).classList.add('completed');
+                    }
+                });
+                updateStats();
+                if (btn.dataset.nav === 'next') {
+                    var nextIdx = parseInt(btn.dataset.idx) + 1;
+                    document.getElementById('case-' + nextIdx).scrollIntoView({ behavior: 'smooth' });
+                } else if (btn.dataset.nav === 'finish') {
                     document.querySelector('.final-section').scrollIntoView({ behavior: 'smooth' });
                 }
-            }, 1200);
+            }
         }
 
         function autoSave() {
