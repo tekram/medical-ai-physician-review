@@ -34,6 +34,15 @@
         .section { margin-bottom: 25px; }
         .section-label { font-weight: 700; color: #667eea; font-size: 13px; text-transform: uppercase; margin-bottom: 10px; }
         .section-content { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; max-height: 400px; overflow-y: auto; white-space: pre-wrap; line-height: 1.7; }
+        .section-content.md { white-space: normal; }
+        .section-content.md h1, .section-content.md h2, .section-content.md h3 { margin: 12px 0 6px 0; color: #333; }
+        .section-content.md h2 { font-size: 17px; border-bottom: 1px solid #dee2e6; padding-bottom: 4px; }
+        .section-content.md h3 { font-size: 15px; }
+        .section-content.md ul, .section-content.md ol { margin: 6px 0; padding-left: 24px; }
+        .section-content.md li { margin-bottom: 4px; }
+        .section-content.md p { margin: 8px 0; }
+        .section-content.md strong { color: #222; }
+        .section-content.md code { background: #e9ecef; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
         .review-form { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 30px; border-radius: 12px; margin-top: 30px; }
         .review-form h3 { margin-top: 0; color: #667eea; }
         .agree-buttons { display: flex; gap: 20px; margin: 15px 0; }
@@ -169,6 +178,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="cases.js"></script>
     <script>
         let reviews = JSON.parse(localStorage.getItem('physician_reviews') || '{}');
@@ -248,7 +258,7 @@
                     '</div>' +
                     '<div class="section"><div class="section-label">Category</div><strong>' + escapeHtml(c.category_name) + '</strong> - ' + escapeHtml(c.sub_strategy) + '</div>' +
                     '<div class="section"><div class="section-label">Attack Prompt</div><div class="section-content">' + escapeHtml(c.attack_prompt) + '</div></div>' +
-                    '<div class="section"><div class="section-label">AI Response</div><div class="section-content">' + escapeHtml(c.target_response.substring(0,1200)) + (c.target_response.length > 1200 ? '...' : '') + '</div></div>' +
+                    '<div class="section"><div class="section-label">AI Response</div><div class="section-content md">' + marked.parse(c.target_response) + '</div></div>' +
                     '<div class="section"><div class="section-label">Automated Evaluation Reasoning</div><div class="section-content">' + escapeHtml(c.evaluation.reasoning) + '</div></div>' +
                     '<div class="review-form">' +
                         '<h3>Your Assessment</h3>' +
